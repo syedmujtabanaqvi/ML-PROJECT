@@ -1,85 +1,52 @@
-from flask import Flask, request
-import pickle
 import numpy as np
-# Nayi file import ki (Agar aap ek aur .py file banate hain)
-# from data import feature_names 
 
-app = Flask(__name__)
-
-# Aapke 13 features ke naam
+# Feature Names ko yahan rakho
 FEATURE_NAMES = ['CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT']
 
-# HTML Form ko Python Multi-line String mein define karein
-# Isse aapka sara HTML code Python file mein count hoga.
-HTML_FORM_CONTENT = f"""
-<form method="POST" action="/predict">
-    <h2>Boston Housing Price Prediction</h2>
-    <p>Please enter the 13 required features:</p>
-    {
-        ''.join([f'<label for="{name}">{name}:</label><input type="text" name="{name}" required><br>' 
-                 for name in FEATURE_NAMES])
-    }
-    <input type="submit" value="Predict Price">
-</form>
-"""
-
-# Model loading (As it is)
-try:
-    with open('housppp_price_prediction.pkl', 'rb') as f:
-        model = pickle.load(f)
-    MODEL_LOADED = True
-except Exception as e:
-    print(f"Error loading model: {e}")
-    MODEL_LOADED = False
-    
-# Function to create the full HTML response
-def create_html_response(prediction_text=""):
-    # Yahaan hum HTML ko code kar rahe hain
-    full_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>ML Prediction App</title>
-        <style>body{{font-family: Arial;}}</style>
-    </head>
-    <body>
-        <h1>ML Prediction Service (Python-Heavy Code)</h1>
-        {HTML_FORM_CONTENT}
-        <hr>
-        <p style="font-size: 20px; font-weight: bold;">{prediction_text}</p>
-    </body>
-    </html>
+def create_feature_array(form_data):
     """
-    return full_html
-
-
-@app.route('/')
-def home():
-    # render_template ki jagah seedhe HTML string return karein
-    return create_html_response() 
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    if not MODEL_LOADED:
-        return create_html_response(prediction_text="Error: Model file could not be loaded.")
-        
+    Form data ko process karke NumPy array mein badalta hai.
+    """
     try:
-        # features list ko for loop se banao, jo Python code ko badhata hai
+        # Features ko list mein collect karna
         features = []
         for name in FEATURE_NAMES:
-            features.append(float(request.form[name]))
-
-        # NumPy array aur prediction logic as it is
+            # Data validation yahan bhi ho rahi hai
+            value = float(form_data.get(name))
+            features.append(value)
+            
+        # 2D array mein reshape karna model ke liye
         features_array = np.array([features])
-        prediction = model.predict(features_array)
+        return features_array
+    except (TypeError, ValueError) as e:
+        # Agar koi input number nahi hai toh error throw karna
+        raise ValueError(f"Invalid input provided for one or more features: {e}")
+
+class ModelPredictor:
+    """
+    Model ko load aur manage karne ke liye ek class.
+    """
+    def __init__(self, model_path):
+        self.model = self._load_model(model_path)
+
+    def _load_model(self, model_path):
+        """Pickle file se model load karta hai."""
+        try:
+            import pickle
+            with open(model_path, 'rb') as f:
+                model = pickle.load(f)
+            print("ML Model loaded successfully.")
+            return model
+        except Exception as e:
+            print(f"Error loading model from {model_path}: {e}")
+            return None
+
+    def predict(self, features_array):
+        """Loaded model se prediction karta hai."""
+        if self.model is None:
+            raise Exception("Model is not loaded. Cannot predict.")
+            
+        prediction = self.model.predict(features_array)
+        # Prediction ko round karke return karna
         output = round(prediction[0], 2)
-
-        # Result ko usi function se pass karein
-        return create_html_response(prediction_text=f"Predicted Price: ${output}k")
-
-    except Exception as e:
-        # Error handling
-        return create_html_response(prediction_text=f"Input Error: Please check all 13 fields. Details: {str(e)}")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+        return output
