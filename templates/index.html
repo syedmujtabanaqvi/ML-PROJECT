@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Boston Housing Price Prediction</title>
+
+    <style>
+        body {
+            background: linear-gradient(to right, #83a4d4, #b6fbff);
+            font-family: Arial;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        form {
+            background: #ffffffdd;
+            padding: 25px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0px 4px 15px #00000033;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background: #007bff;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+        input[type="submit"]:hover {
+            background: #0056b3;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #073b55;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Boston Housing Price Prediction</h2>
+
+    <form action="/predict" method="post">
+
+        <label>CRIM:</label>
+        <input type="number" step="any" name="CRIM" value="0.1" required>
+
+        <label>ZN:</label>
+        <input type="number" step="any" name="ZN" value="12.5" required>
+
+        <label>INDUS:</label>
+        <input type="number" step="any" name="INDUS" value="7.87" required>
+
+        <label>CHAS (0 or 1):</label>
+        <input type="number" name="CHAS" min="0" max="1" value="0" required>
+
+        <label>NOX:</label>
+        <input type="number" step="any" name="NOX" value="0.52" required>
+
+        <label>RM:</label>
+        <input type="number" step="any" name="RM" value="6.0" required>
+
+        <label>AGE:</label>
+        <input type="number" step="any" name="AGE" value="65.2" required>
+
+        <label>DIS:</label>
+        <input type="number" step="any" name="DIS" value="4.2" required>
+
+        <label>RAD:</label>
+        <input type="number" step="any" name="RAD" value="5" required>
+
+        <label>TAX:</label>
+        <input type="number" step="any" name="TAX" value="296" required>
+
+        <label>PTRATIO:</label>
+        <input type="number" step="any" name="PTRATIO" value="16.3" required>
+
+        <label>B:</label>
+        <input type="number" step="any" name="B" value="392.1" required>
+
+        <label>LSTAT:</label>
+        <input type="number" step="any" name="LSTAT" value="9.1" required>
+
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction_text %}
+        <h3>{{ prediction_text }}</h3>
+    {% endif %}
+
+</body>
+</html>
